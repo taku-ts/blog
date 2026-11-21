@@ -1,0 +1,44 @@
+# ワークフロー名（GitHub の Actions タブに表示される）
+name: Deploy to GitHub Pages
+
+# いつ実行するか
+on:
+  # main ブランチに push されたとき
+  push:
+    branches: [main]
+  # Actions タブから手動で実行できるようにする
+  workflow_dispatch:
+
+# このワークフローに与える権限（必要な最小限だけ）
+permissions:
+  contents: read # リポジトリのコードを読む
+  pages: write # GitHub Pages に公開する
+  id-token: write # Pages へのデプロイ時に本人確認トークンを発行する
+
+jobs:
+  # ① ビルド：サイトを生成して、成果物としてアップロードする
+  build:
+    runs-on: ubuntu-latest # GitHub が用意する Linux マシンで実行
+    steps:
+      # リポジトリのコードを取得する
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      # npm ci → npm run build → dist/ のアップロードまでまとめて行う（Astro 公式）
+      - name: Build and upload
+        uses: withastro/action@v6
+        with:
+          # ローカル（.nvmrc）と同じメジャーバージョンに揃える（未指定だと 24）
+          node-version: 26
+
+  # ② デプロイ：①の成果物を GitHub Pages に公開する
+  deploy:
+    needs: build # build が成功してから実行する
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages # Pages 用の環境（Settings → Environments に表示される）
+      url: ${{ steps.deployment.outputs.page_url }} # 公開 URL を Actions の画面に表示する
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment # 上の url から参照するための ID
+        uses: actions/deploy-pages@v5
