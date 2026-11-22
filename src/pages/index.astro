@@ -1,4 +1,7 @@
 ---
+// デザインシステム（トークン・部品・アイコンの見た目）を読み込む
+import "@taku-ts/design-system";
+
 // ===== ページのデータ（ビルド時に1回だけ実行される） =====
 const name = "Taku";
 const role = "Web Developer"; // TODO: 肩書きは自由に変更
@@ -13,8 +16,12 @@ const about: string[] = [
 
 const skills: string[] = ["TypeScript", "Vue 3", "Nuxt", "Astro", "HTML / CSS"];
 
-type Link = { label: string; url: string };
-const links: Link[] = [{ label: "GitHub", url: "https://github.com/taku-ts" }];
+// icon は Iconify のアイコン名（UI は material-symbols:*、ロゴは simple-icons:*）
+type Link = { label: string; url: string; icon: string };
+const links: Link[] = [
+	{ label: "GitHub", url: "https://github.com/taku-ts", icon: "simple-icons:github" },
+	{ label: "npm", url: "https://www.npmjs.com/~taku-ts", icon: "simple-icons:npm" },
+];
 
 // フッターの年号（ビルドした時点の年になる）
 const year = new Date().getFullYear();
@@ -29,154 +36,102 @@ const year = new Date().getFullYear();
 		<meta name="generator" content={Astro.generator} />
 		<meta name="description" content={description} />
 		<title>{title}</title>
+
+		<!-- アイコン表示用（Iconify Web Component）。is:inline = Astro に加工させず、そのまま出力する -->
+		<script is:inline src="https://code.iconify.design/iconify-icon/3.0.5/iconify-icon.min.js"></script>
 	</head>
 	<body>
-		<main class="container">
-			<!-- ヒーロー：名前と肩書き -->
-			<header class="hero">
-				<h1>{name}</h1>
-				<p class="role">{role}</p>
-			</header>
+		<div class="container">
+			<main class="page stack stack--lg">
+				<!-- ヒーロー：名前と肩書き -->
+				<header class="stack stack--sm">
+					<h1 class="hero-name">{name}</h1>
+					<p class="hero-role">{role}</p>
+				</header>
 
-			<section>
-				<h2>About</h2>
-				{about.map((text) => <p>{text}</p>)}
-			</section>
+				<section class="card stack stack--sm">
+					<h2 class="card__title">About</h2>
+					{about.map((text) => <p class="card__body">{text}</p>)}
+				</section>
 
-			<section>
-				<h2>Skills</h2>
-				<ul class="skills">
-					{skills.map((skill) => <li>{skill}</li>)}
-				</ul>
-			</section>
+				<section class="card stack stack--sm">
+					<h2 class="card__title">Skills</h2>
+					<ul class="skills">
+						{skills.map((skill) => <li class="skill">{skill}</li>)}
+					</ul>
+				</section>
 
-			<section>
-				<h2>Links</h2>
-				<ul class="links">
-					{
-						links.map((link) => (
-							<li>
-								<a href={link.url} target="_blank" rel="noopener noreferrer">
+				<section class="card stack stack--sm">
+					<h2 class="card__title">Links</h2>
+					<div class="links">
+						{
+							links.map((link) => (
+								<a class="btn" href={link.url} target="_blank" rel="noopener noreferrer">
+									<iconify-icon class="icon" icon={link.icon} aria-hidden="true" />
 									{link.label}
 								</a>
-							</li>
-						))
-					}
-				</ul>
-			</section>
+							))
+						}
+					</div>
+				</section>
 
-			<section>
-				<h2>Blog</h2>
-				<!-- /blog/ は Phase 3 で作るので、今はリンクにしない -->
-				<p class="muted">準備中です。</p>
-			</section>
+				<section class="card stack stack--sm">
+					<h2 class="card__title">Blog</h2>
+					<!-- /blog/ は Phase 3 で作るので、今はリンクにしない -->
+					<p class="card__body">準備中です。</p>
+				</section>
+			</main>
 
 			<footer class="footer">
 				<small>&copy; {year} {name}</small>
 			</footer>
-		</main>
+		</div>
 	</body>
 </html>
 
-<!-- サイト全体に効かせる土台（色の変数・body） -->
-<style is:global>
-	:root {
-		color-scheme: dark; /* スクロールバーやフォーム部品もダーク表示に */
-		--color-bg: #0f1115;
-		--color-surface: #1a1d24;
-		--color-border: #2a2f3a;
-		--color-text: #e6e8eb;
-		--color-muted: #9aa3af;
-		--color-accent: #7dd3fc;
-	}
-
-	body {
-		margin: 0;
-		background: var(--color-bg);
-		color: var(--color-text);
-		font-family: system-ui, -apple-system, "Hiragino Sans", "Noto Sans JP", sans-serif;
-		line-height: 1.8;
-	}
-</style>
-
-<!-- このページだけに効くスタイル（Astroが自動でスコープする） -->
+<!-- このページだけの見た目。値はデザインシステムのトークンだけを使う -->
 <style>
-	.container {
-		max-width: 640px;
-		margin: 0 auto;
-		padding: 64px 16px;
+	.page {
+		padding-block: var(--space-8) var(--space-6);
 	}
 
-	.hero {
-		margin-bottom: 48px;
-	}
-
-	h1 {
+	.hero-name {
 		margin: 0;
-		font-size: 2.5rem;
-		line-height: 1.2;
+		font-size: var(--font-size-2xl);
+		line-height: var(--line-height-tight);
 	}
 
-	.role {
-		margin: 8px 0 0;
+	.hero-role {
+		margin: 0;
 		color: var(--color-accent);
-	}
-
-	section {
-		margin-bottom: 40px;
-	}
-
-	h2 {
-		margin: 0 0 12px;
-		font-size: 1.1rem;
-		color: var(--color-muted);
-		letter-spacing: 0.08em;
-		text-transform: uppercase;
-	}
-
-	p {
-		margin: 0 0 8px;
-	}
-
-	.muted {
-		color: var(--color-muted);
 	}
 
 	/* スキルはタグ風に横並び */
 	.skills {
 		display: flex;
 		flex-wrap: wrap;
-		gap: 8px;
+		gap: var(--space-2);
 		margin: 0;
 		padding: 0;
 		list-style: none;
 	}
 
-	.skills li {
-		padding: 2px 12px;
-		background: var(--color-surface);
+	.skill {
+		padding: var(--space-1) var(--space-3);
 		border: 1px solid var(--color-border);
-		border-radius: 999px;
-		font-size: 0.9rem;
+		border-radius: var(--radius-full);
+		font-size: var(--font-size-sm);
+		line-height: var(--line-height-tight);
 	}
 
 	.links {
-		margin: 0;
-		padding-left: 1.2em;
-	}
-
-	a {
-		color: var(--color-accent);
-		text-underline-offset: 3px;
-	}
-
-	a:hover {
-		text-decoration-thickness: 2px;
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--space-3);
 	}
 
 	.footer {
-		margin-top: 64px;
-		padding-top: 16px;
+		padding-block: var(--space-6);
 		border-top: 1px solid var(--color-border);
 		color: var(--color-muted);
 	}
