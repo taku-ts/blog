@@ -1,6 +1,6 @@
 ---
-// デザインシステム（トークン・部品・アイコンの見た目）を読み込む
-import "@taku-ts/design-system";
+// 共通レイアウト（<head>・デザインシステム・フッターはここに入っている）
+import BaseLayout from "../layouts/BaseLayout.astro";
 
 // ===== ページのデータ（ビルド時に1回だけ実行される） =====
 const name = "Taku";
@@ -22,79 +22,52 @@ const links: Link[] = [
 	{ label: "GitHub", url: "https://github.com/taku-ts", icon: "simple-icons:github" },
 	{ label: "npm", url: "https://www.npmjs.com/~taku-ts", icon: "simple-icons:npm" },
 ];
-
-// フッターの年号（ビルドした時点の年になる）
-const year = new Date().getFullYear();
 ---
 
-<html lang="ja">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<meta name="description" content={description} />
-		<title>{title}</title>
+<BaseLayout title={title} description={description}>
+	<div class="stack stack--lg">
+		<!-- ヒーロー：名前と肩書き -->
+		<header class="stack stack--sm">
+			<h1 class="hero-name">{name}</h1>
+			<p class="hero-role">{role}</p>
+		</header>
 
-		<!-- アイコン表示用（Iconify Web Component）。is:inline = Astro に加工させず、そのまま出力する -->
-		<script is:inline src="https://code.iconify.design/iconify-icon/3.0.5/iconify-icon.min.js"></script>
-	</head>
-	<body>
-		<div class="container">
-			<main class="page stack stack--lg">
-				<!-- ヒーロー：名前と肩書き -->
-				<header class="stack stack--sm">
-					<h1 class="hero-name">{name}</h1>
-					<p class="hero-role">{role}</p>
-				</header>
+		<section class="card stack stack--sm">
+			<h2 class="card__title">About</h2>
+			{about.map((text) => <p class="card__body">{text}</p>)}
+		</section>
 
-				<section class="card stack stack--sm">
-					<h2 class="card__title">About</h2>
-					{about.map((text) => <p class="card__body">{text}</p>)}
-				</section>
+		<section class="card stack stack--sm">
+			<h2 class="card__title">Skills</h2>
+			<ul class="skills">
+				{skills.map((skill) => <li class="skill">{skill}</li>)}
+			</ul>
+		</section>
 
-				<section class="card stack stack--sm">
-					<h2 class="card__title">Skills</h2>
-					<ul class="skills">
-						{skills.map((skill) => <li class="skill">{skill}</li>)}
-					</ul>
-				</section>
+		<section class="card stack stack--sm">
+			<h2 class="card__title">Links</h2>
+			<div class="links">
+				{
+					links.map((link) => (
+						<a class="btn" href={link.url} target="_blank" rel="noopener noreferrer">
+							<iconify-icon class="icon" icon={link.icon} aria-hidden="true" />
+							{link.label}
+						</a>
+					))
+				}
+			</div>
+		</section>
 
-				<section class="card stack stack--sm">
-					<h2 class="card__title">Links</h2>
-					<div class="links">
-						{
-							links.map((link) => (
-								<a class="btn" href={link.url} target="_blank" rel="noopener noreferrer">
-									<iconify-icon class="icon" icon={link.icon} aria-hidden="true" />
-									{link.label}
-								</a>
-							))
-						}
-					</div>
-				</section>
-
-				<section class="card stack stack--sm">
-					<h2 class="card__title">Blog</h2>
-					<!-- /blog/ は Phase 3 で作るので、今はリンクにしない -->
-					<p class="card__body">準備中です。</p>
-				</section>
-			</main>
-
-			<footer class="footer">
-				<small>&copy; {year} {name}</small>
-			</footer>
-		</div>
-	</body>
-</html>
+		<section class="card stack stack--sm">
+			<h2 class="card__title">Blog</h2>
+			<!-- /blog/ は Phase 3 で作るので、今はリンクにしない -->
+			<p class="card__body">準備中です。</p>
+		</section>
+	</div>
+</BaseLayout>
 
 <!-- このページだけの見た目。値はデザインシステムのトークンだけを使う -->
 <style>
-	.page {
-		padding-block: var(--space-8) var(--space-6);
-	}
-
 	.hero-name {
 		margin: 0;
 		font-size: var(--font-size-2xl);
@@ -128,11 +101,5 @@ const year = new Date().getFullYear();
 		display: flex;
 		flex-wrap: wrap;
 		gap: var(--space-3);
-	}
-
-	.footer {
-		padding-block: var(--space-6);
-		border-top: 1px solid var(--color-border);
-		color: var(--color-muted);
 	}
 </style>

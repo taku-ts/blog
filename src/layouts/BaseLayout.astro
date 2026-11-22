@@ -1,0 +1,56 @@
+---
+// 全ページ共通のレイアウト（<html>〜</html>、<head>、フッター）
+// デザインシステムもここで1回だけ読み込めば、全ページで使える
+// パッケージ名だけだと TypeScript が「CSS である」と判別できず型エラーになるため、.css まで書く
+import "@taku-ts/design-system/styles/index.css";
+
+// 親ページから受け取る値（Vue の defineProps に当たる）
+interface Props {
+	title: string; // <title> にそのまま入る
+	description: string; // 検索結果などに表示される説明文
+}
+
+const { title, description } = Astro.props;
+
+const siteOwner = "Taku";
+const year = new Date().getFullYear(); // ビルドした時点の年
+---
+
+<html lang="ja">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<link rel="icon" href="/favicon.ico" />
+		<meta name="viewport" content="width=device-width" />
+		<meta name="generator" content={Astro.generator} />
+		<meta name="description" content={description} />
+		<title>{title}</title>
+
+		<!-- アイコン表示用（Iconify Web Component）。is:inline = Astro に加工させず、そのまま出力する -->
+		<script is:inline src="https://code.iconify.design/iconify-icon/3.0.5/iconify-icon.min.js"></script>
+	</head>
+	<body>
+		<div class="container">
+			<main class="page">
+				<!-- 各ページの中身がここに入る（Vue の <slot /> と同じ） -->
+				<slot />
+			</main>
+
+			<footer class="footer">
+				<small>&copy; {year} {siteOwner}</small>
+			</footer>
+		</div>
+	</body>
+</html>
+
+<style>
+	.page {
+		padding-block: var(--space-8) var(--space-6);
+	}
+
+	.footer {
+		padding-block: var(--space-6);
+		border-top: 1px solid var(--color-border);
+		color: var(--color-muted);
+	}
+</style>
